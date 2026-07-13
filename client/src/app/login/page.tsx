@@ -1,4 +1,32 @@
+"use client";
+
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { ApiError, login } from "@/lib/api";
+import { saveSession } from "@/lib/session";
+
 export default function LoginPage() {
+  const router = useRouter();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setError("");
+    setLoading(true);
+    try {
+      const { accessToken, user } = await login({ email, password });
+      saveSession(accessToken, user);
+      router.push("/feed");
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : "Login failed");
+    } finally {
+      setLoading(false);
+    }
+  }
+
   return (
     <>
       {/*Login Section Start*/}
@@ -71,7 +99,12 @@ export default function LoginPage() {
                     {" "}
                     <span>Or</span>
                   </div>
-                  <form className="_social_login_form">
+                  {error && (
+                    <div className="_mar_b14" style={{ color: "#dc3545" }}>
+                      {error}
+                    </div>
+                  )}
+                  <form className="_social_login_form" onSubmit={handleSubmit}>
                     <div className="row">
                       <div className="col-xl-12 col-lg-12 col-md-12 col-sm-12">
                         <div className="_social_login_form_input _mar_b14">
@@ -81,6 +114,9 @@ export default function LoginPage() {
                           <input
                             type="email"
                             className="form-control _social_login_input"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            required
                           />
                         </div>
                       </div>
@@ -92,6 +128,9 @@ export default function LoginPage() {
                           <input
                             type="password"
                             className="form-control _social_login_input"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            required
                           />
                         </div>
                       </div>
@@ -126,10 +165,11 @@ export default function LoginPage() {
                       <div className="col-lg-12 col-md-12 col-xl-12 col-sm-12">
                         <div className="_social_login_form_btn _mar_t40 _mar_b60">
                           <button
-                            type="button"
+                            type="submit"
                             className="_social_login_form_btn_link _btn1"
+                            disabled={loading}
                           >
-                            Login now
+                            {loading ? "Logging in..." : "Login now"}
                           </button>
                         </div>
                       </div>
@@ -139,7 +179,8 @@ export default function LoginPage() {
                     <div className="col-xl-12 col-lg-12 col-md-12 col-sm-12">
                       <div className="_social_login_bottom_txt">
                         <p className="_social_login_bottom_txt_para">
-                          Dont have an account? <a href="#0">Create New Account</a>
+                          Dont have an account?{" "}
+                          <a href="/registration">Create New Account</a>
                         </p>
                       </div>
                     </div>

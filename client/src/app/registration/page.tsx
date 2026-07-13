@@ -1,4 +1,46 @@
+"use client";
+
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { ApiError, register } from "@/lib/api";
+import { saveSession } from "@/lib/session";
+
 export default function RegistrationPage() {
+  const router = useRouter();
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [repeatPassword, setRepeatPassword] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setError("");
+
+    if (password !== repeatPassword) {
+      setError("Passwords do not match");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const { accessToken, user } = await register({
+        firstName,
+        lastName,
+        email,
+        password,
+      });
+      saveSession(accessToken, user);
+      router.push("/feed");
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : "Registration failed");
+    } finally {
+      setLoading(false);
+    }
+  }
+
   return (
     <>
       {/*Registration Section Start*/}
@@ -70,8 +112,44 @@ export default function RegistrationPage() {
                     {" "}
                     <span>Or</span>
                   </div>
-                  <form className="_social_registration_form">
+                  {error && (
+                    <div className="_mar_b14" style={{ color: "#dc3545" }}>
+                      {error}
+                    </div>
+                  )}
+                  <form
+                    className="_social_registration_form"
+                    onSubmit={handleSubmit}
+                  >
                     <div className="row">
+                      <div className="col-xl-12 col-lg-12 col-md-12 col-sm-12">
+                        <div className="_social_registration_form_input _mar_b14">
+                          <label className="_social_registration_label _mar_b8">
+                            First Name
+                          </label>
+                          <input
+                            type="text"
+                            className="form-control _social_registration_input"
+                            value={firstName}
+                            onChange={(e) => setFirstName(e.target.value)}
+                            required
+                          />
+                        </div>
+                      </div>
+                      <div className="col-xl-12 col-lg-12 col-md-12 col-sm-12">
+                        <div className="_social_registration_form_input _mar_b14">
+                          <label className="_social_registration_label _mar_b8">
+                            Last Name
+                          </label>
+                          <input
+                            type="text"
+                            className="form-control _social_registration_input"
+                            value={lastName}
+                            onChange={(e) => setLastName(e.target.value)}
+                            required
+                          />
+                        </div>
+                      </div>
                       <div className="col-xl-12 col-lg-12 col-md-12 col-sm-12">
                         <div className="_social_registration_form_input _mar_b14">
                           <label className="_social_registration_label _mar_b8">
@@ -80,6 +158,9 @@ export default function RegistrationPage() {
                           <input
                             type="email"
                             className="form-control _social_registration_input"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            required
                           />
                         </div>
                       </div>
@@ -91,6 +172,10 @@ export default function RegistrationPage() {
                           <input
                             type="password"
                             className="form-control _social_registration_input"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            required
+                            minLength={6}
                           />
                         </div>
                       </div>
@@ -102,6 +187,10 @@ export default function RegistrationPage() {
                           <input
                             type="password"
                             className="form-control _social_registration_input"
+                            value={repeatPassword}
+                            onChange={(e) => setRepeatPassword(e.target.value)}
+                            required
+                            minLength={6}
                           />
                         </div>
                       </div>
@@ -129,10 +218,11 @@ export default function RegistrationPage() {
                       <div className="col-lg-12 col-md-12 col-xl-12 col-sm-12">
                         <div className="_social_registration_form_btn _mar_t40 _mar_b60">
                           <button
-                            type="button"
+                            type="submit"
                             className="_social_registration_form_btn_link _btn1"
+                            disabled={loading}
                           >
-                            Login now
+                            {loading ? "Creating account..." : "Register now"}
                           </button>
                         </div>
                       </div>
@@ -142,7 +232,7 @@ export default function RegistrationPage() {
                     <div className="col-xl-12 col-lg-12 col-md-12 col-sm-12">
                       <div className="_social_registration_bottom_txt">
                         <p className="_social_registration_bottom_txt_para">
-                          Dont have an account? <a href="#0">Create New Account</a>
+                          Already have an account? <a href="/login">Login</a>
                         </p>
                       </div>
                     </div>

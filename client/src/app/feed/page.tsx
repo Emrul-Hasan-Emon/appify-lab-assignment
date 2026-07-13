@@ -1,13 +1,35 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import Script from "next/script";
+import { clearSession, getToken } from "@/lib/session";
 
 export default function FeedPage() {
+  const router = useRouter();
   const [darkMode, setDarkMode] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const [timelineOpen, setTimelineOpen] = useState(false);
   const [notifyOpen, setNotifyOpen] = useState(false);
+  const [authChecked, setAuthChecked] = useState(false);
+
+  useEffect(() => {
+    if (!getToken()) {
+      router.replace("/login");
+      return;
+    }
+    setAuthChecked(true);
+  }, [router]);
+
+  function handleLogout(e: React.MouseEvent) {
+    e.preventDefault();
+    clearSession();
+    router.replace("/login");
+  }
+
+  if (!authChecked) {
+    return null;
+  }
 
   return (
     <>
@@ -532,14 +554,14 @@ export default function FeedPage() {
 										</a>
 									</li>
 									<li className="_nav_dropdown_list_item">
-										<a href="#0" className="_nav_dropdown_link">
+										<a href="#0" className="_nav_dropdown_link" onClick={handleLogout}>
 											<div className="_nav_drop_info">
 												<span>
 													<svg xmlns="http://www.w3.org/2000/svg" width="19" height="19" fill="none" viewBox="0 0 19 19">
 														<path stroke="#377DFF" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M6.667 18H2.889A1.889 1.889 0 011 16.111V2.89A1.889 1.889 0 012.889 1h3.778M13.277 14.222L18 9.5l-4.723-4.722M18 9.5H6.667"></path>
-													</svg>			
+													</svg>
 												</span>
-												Log Out		
+												Log Out
 											</div>
 											<button type="submit" className="_nav_drop_btn_link">
 												<svg xmlns="http://www.w3.org/2000/svg" width="6" height="10" fill="none" viewBox="0 0 6 10">
