@@ -12,15 +12,17 @@ import { PostMedia } from './post-media.entity';
 import { User } from './user.entity';
 
 @Entity()
-// newest-first listing is the default feed order; this also backs cursor-based pagination
-@Index(['createdAt'])
+// feed query is `WHERE visibility = 'public' OR authorId = :me ORDER BY id DESC` with an
+// `id < cursor` cutoff - these composite indexes let Postgres satisfy both the filter and
+// the sort/cursor for each branch of the OR without a full scan, even at massive row counts.
+@Index(['visibility', 'id'])
+@Index(['authorId', 'id'])
 export class Post extends CustomBase {
   @ManyToOne(() => User, { nullable: false, onDelete: 'CASCADE' })
   @JoinColumn({ name: 'authorId' })
   author: User;
 
   @Column()
-  @Index()
   authorId: number;
 
   @Column({ type: 'text', nullable: true })
