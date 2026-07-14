@@ -4,7 +4,14 @@ import { AppModule } from './app.module';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  app.enableCors();
+
+  // comma-separated list, e.g. "https://myapp.vercel.app,http://localhost:3000";
+  // unset (the default) allows any origin, which is fine for a temporary demo deploy
+  const corsOrigin = process.env.CORS_ORIGIN;
+  app.enableCors({
+    origin: corsOrigin ? corsOrigin.split(',').map((o) => o.trim()) : true,
+  });
+
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
