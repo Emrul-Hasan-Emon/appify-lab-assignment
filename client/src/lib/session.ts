@@ -1,4 +1,4 @@
-import { AuthUser } from "./api";
+import { AuthUser } from "./types";
 
 const TOKEN_KEY = "accessToken";
 const USER_KEY = "user";

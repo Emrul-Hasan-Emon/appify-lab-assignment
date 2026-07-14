@@ -1,7 +1,14 @@
 import { Injectable, OnApplicationBootstrap } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Comment, Post, PostMedia, User } from './entities';
+import {
+  Comment,
+  CommentLike,
+  Post,
+  PostLike,
+  PostMedia,
+  User,
+} from './entities';
 
 // Single access point for every repository - feature modules inject DatabaseService
 // instead of each declaring their own @InjectRepository(...).
@@ -11,6 +18,8 @@ export class DatabaseService implements OnApplicationBootstrap {
   posts: Repository<Post>;
   postMedia: Repository<PostMedia>;
   comments: Repository<Comment>;
+  postLikes: Repository<PostLike>;
+  commentLikes: Repository<CommentLike>;
 
   constructor(
     @InjectRepository(User)
@@ -21,6 +30,10 @@ export class DatabaseService implements OnApplicationBootstrap {
     private readonly postMediaRepository: Repository<PostMedia>,
     @InjectRepository(Comment)
     private readonly commentRepository: Repository<Comment>,
+    @InjectRepository(PostLike)
+    private readonly postLikeRepository: Repository<PostLike>,
+    @InjectRepository(CommentLike)
+    private readonly commentLikeRepository: Repository<CommentLike>,
   ) {}
 
   onApplicationBootstrap() {
@@ -28,5 +41,7 @@ export class DatabaseService implements OnApplicationBootstrap {
     this.posts = this.postRepository;
     this.postMedia = this.postMediaRepository;
     this.comments = this.commentRepository;
+    this.postLikes = this.postLikeRepository;
+    this.commentLikes = this.commentLikeRepository;
   }
 }

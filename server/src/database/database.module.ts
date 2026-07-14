@@ -2,9 +2,16 @@ import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { DatabaseService } from './database.service';
-import { Comment, Post, PostMedia, User } from './entities';
+import {
+  Comment,
+  CommentLike,
+  Post,
+  PostLike,
+  PostMedia,
+  User,
+} from './entities';
 
-const entities = [User, Post, PostMedia, Comment];
+const entities = [User, Post, PostMedia, Comment, PostLike, CommentLike];
 
 @Module({
   imports: [
